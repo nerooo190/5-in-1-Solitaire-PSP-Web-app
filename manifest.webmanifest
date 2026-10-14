@@ -1,0 +1,11 @@
+{
+  "name": "5 in 1 Solitaire",
+  "short_name": "5in1 Solitaire",
+  "description": "Klondike, Spider, FreeCell, Golf and Gaps — 4K rendering, up to 120 fps.",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0d0e33",
+  "theme_color": "#101552",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

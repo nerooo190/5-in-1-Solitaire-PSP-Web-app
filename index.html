@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#101552">
+<meta name="description" content="5 in 1 Solitaire: Klondike, Spider, FreeCell, Golf and Gaps. 4K rendering, up to 120 fps.">
+<title>5 in 1 Solitaire</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-0.6 -0.6 1.2 1.2'%3E%3Crect x='-0.6' y='-0.6' width='1.2' height='1.2' rx='0.25' fill='%232536b8'/%3E%3Cpath fill='%23fff' d='M0,0.5 C-0.15,0.38 -0.5,0.12 -0.5,-0.16 C-0.5,-0.36 -0.36,-0.5 -0.2,-0.5 C-0.09,-0.5 -0.02,-0.44 0,-0.34 C0.02,-0.44 0.09,-0.5 0.2,-0.5 C0.36,-0.5 0.5,-0.36 0.5,-0.16 C0.5,0.12 0.15,0.38 0,0.5Z'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="view" aria-label="Card table"></canvas>
+
+<div id="stage">
+  <!-- Title -->
+  <section id="s-title" class="screen">
+    <div class="title-block">
+      <div class="title-5">5<span> in </span>1</div>
+      <div class="title-name">SOLITAIRE</div>
+      <div class="title-suits" id="title-suits"></div>
+    </div>
+    <button class="press" id="btn-start" data-nav>Press ENTER or click to start</button>
+    <div class="title-note">Klondike · Spider · FreeCell · Golf · Gaps &nbsp;|&nbsp; 4K · up to 120 fps</div>
+  </section>
+
+  <!-- Main menu -->
+  <section id="s-menu" class="screen">
+    <h2 class="screen-title">Choose a game</h2>
+    <div class="tiles" id="tiles"></div>
+    <div class="menu-corner">
+      <button class="btn" id="btn-stats" data-nav>Statistics</button>
+      <a class="btn" id="btn-psp" href="psp.html" data-nav style="text-decoration:none;color:inherit">Original PSP version</a>
+      <button class="btn" id="btn-fs" data-nav>Fullscreen</button>
+    </div>
+  </section>
+
+  <!-- Game select -->
+  <section id="s-select" class="screen">
+    <div class="select-art" id="select-art"></div>
+    <div class="select-main">
+      <h2 class="screen-title left" id="select-title"></h2>
+      <div class="select-desc" id="select-desc"></div>
+      <div class="select-buttons">
+        <button class="btn big" id="btn-newgame" data-nav>New Game</button>
+        <button class="btn big" id="btn-tutorial" data-nav>Tutorial</button>
+      </div>
+      <div class="panel opts" id="select-opts"></div>
+      <div class="select-stats" id="select-stats"></div>
+    </div>
+    <button class="btn back" data-back data-nav>&#8592; Back</button>
+  </section>
+
+  <!-- Options -->
+  <section id="s-options" class="screen">
+    <h2 class="screen-title">Options</h2>
+    <div class="tabs" id="opt-tabs"></div>
+    <div class="panel wide" id="opt-body"></div>
+    <button class="btn back" data-back data-nav>&#8592; Back</button>
+  </section>
+
+  <!-- Stats -->
+  <section id="s-stats" class="screen">
+    <h2 class="screen-title">Statistics</h2>
+    <div class="panel wide" id="stats-body"></div>
+    <button class="btn back" data-back data-nav>&#8592; Back</button>
+  </section>
+
+  <!-- Tutorial -->
+  <section id="s-tutorial" class="screen">
+    <h2 class="screen-title" id="tut-title"></h2>
+    <div class="panel wide tut" id="tut-body"></div>
+    <button class="btn back" data-back data-nav>&#8592; Back</button>
+  </section>
+
+  <!-- In-game HUD -->
+  <section id="s-hud" class="screen hud">
+    <header class="bar top">
+      <div class="game-name" id="hud-name"></div>
+      <div class="hud-stats" id="hud-stats"></div>
+      <button class="btn small" id="btn-pause">Pause</button>
+    </header>
+    <footer class="bar bottom">
+      <button class="btn" id="btn-undo">&#8630; Undo</button>
+      <button class="btn" id="btn-hint">Hint</button>
+      <button class="btn hidden" id="btn-extra">Reshuffle</button>
+      <button class="btn" id="btn-new">New Deal</button>
+      <span class="kbd">U undo · H hint · P pause · F fps</span>
+    </footer>
+  </section>
+
+  <!-- Pause -->
+  <section id="s-pause" class="screen overlay">
+    <div class="dialog">
+      <h2>Paused</h2>
+      <button class="btn big" id="p-continue" data-nav>Continue</button>
+      <button class="btn big" id="p-restart" data-nav>Restart this deal</button>
+      <button class="btn big" id="p-new" data-nav>New game</button>
+      <button class="btn big" id="p-options" data-nav>Options</button>
+      <button class="btn big" id="p-quit" data-nav>Quit to menu</button>
+    </div>
+  </section>
+
+  <!-- Result -->
+  <section id="s-result" class="screen overlay result">
+    <div class="dialog">
+      <h2 id="r-title"></h2>
+      <div class="r-stats" id="r-stats"></div>
+      <div class="r-buttons">
+        <button class="btn big" id="r-again" data-nav>New game</button>
+        <button class="btn big" id="r-undo" data-nav>Undo last move</button>
+        <button class="btn big" id="r-quit" data-nav>Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="toast"></div>
+  <div id="perf"></div>
+</div>
+
+<script src="js/util.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/gfx.js"></script>
+<script src="js/table.js"></script>
+<script src="js/games.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+<script>if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(function () {});</script>
+</body>
+</html>
