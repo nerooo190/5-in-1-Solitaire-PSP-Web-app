@@ -36,7 +36,7 @@ npm start            # serves with the COOP/COEP headers the multi-threaded emul
 * Works with the USA (`NPUZ00086`) and Europe (`NPEZ00384`) dumps; the game's assets are identical, only the encrypted `EBOOT.BIN` differs.
 * The game itself is not included in this repo; you supply your own copy.
 * Static hosting (e.g. GitHub Pages) works too: `coi-sw.js` adds the required headers via a service worker.
-* The original renders at the PSP's native 60 fps. The resolution selector (native … 4K) sets PPSSPP's internal render resolution. A real GPU is needed for the higher settings.
+* **Use the native resolution (480×272, the default).** The emulator build currently falls back to software rendering inside the browser (`Using Software backend`), so higher internal resolutions get very slow: measured headless, the first picture appeared after ~16 s at 480×272 but was still black after 200 s at 960×544. The 4K option only makes sense once hardware rendering works. The page shows a system check (isolation, SharedArrayBuffer, WebGL2, CPU threads) to help diagnose problems.
 * Default keys: arrows = D-pad, X = ✕, Z = ○, S = □, A = △, Enter = Start, V = Select.
 * Verified headless (software GL): the emulator identifies the game, boots it and accepts keyboard input through the save-data prompt to the profile screen. Not verified: real-GPU speed at 4K, audio by ear, a full game session.
 

@@ -25,6 +25,8 @@
   .note { font-size: 13px; color: #98a2d8; margin-top: 14px; }
   #stage { position: fixed; inset: 0; display: none; background: #000; }
   #game { width: 100%; height: 100%; }
+  #boot { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 20; background: rgba(12,16,70,.9); border: 2px solid rgba(255,255,255,.3);
+    border-radius: 14px; padding: 10px 20px; font-size: 15px; pointer-events: none; transition: opacity .6s; }
   a { color: #ffd94d; }
 </style>
 </head>
@@ -40,21 +42,22 @@
     <div class="row">
       <label>Rendering resolution
         <select id="res">
-          <option value="480x272">PSP native (480×272)</option>
-          <option value="960x544">2× (960×544)</option>
-          <option value="1920x1088" selected>1080p (1920×1088)</option>
-          <option value="2880x1632">3× (2880×1632)</option>
-          <option value="3840x2176">4K (3840×2176)</option>
+          <option value="480x272" selected>PSP native (480×272) — recommended</option>
+          <option value="960x544">2× (960×544) — slower</option>
+          <option value="1920x1088">1080p — very slow, may stay black for minutes</option>
+          <option value="3840x2176">4K — only with hardware rendering</option>
         </select></label>
       <button class="go" id="go" disabled>Start</button>
     </div>
     <div id="err"></div>
+    <div class="note" id="sys"></div>
     <div class="note">Default keys: arrows = D-pad · X = ✕ · Z = ○ · S = □ · A = △ · Enter = Start · V = Select (rebindable in the emulator menu).
-      The original game runs at the PSP's native 60 fps; the resolution setting only changes how sharp it is drawn.
+      The emulator currently renders in software inside the browser, so higher resolutions get slow quickly: start with the native resolution and give the first picture up to a minute.
       Looking for the remake with 4K / up to 120 fps rendering? <a href="index.html">Open the web remake</a>.</div>
   </div>
 </div>
 <div id="stage"><div id="game"></div></div>
+<div id="boot" style="display:none">Booting the original game… the first picture can take up to a minute. Please wait.</div>
 
 <script>
 (function () {
@@ -76,6 +79,13 @@
     err.innerHTML = 'This page cannot run from a file (browsers block it). Start the local server instead: <b>start.sh</b> (Linux / Steam Deck: <code>sh start.sh</code>) or <b>start.bat</b> (Windows), then open the <b>psp.html</b> address the server prints (usually http://localhost:8080/psp.html).';
     document.addEventListener('DOMContentLoaded', function () { $('#go').disabled = true; });
   }
+  (function () {
+    var gl2 = false;
+    try { gl2 = !!document.createElement('canvas').getContext('webgl2'); } catch (e) {}
+    var ok = function (v) { return v ? '✔' : '✘'; };
+    $('#sys').textContent = 'System check: ' + ok(window.crossOriginIsolated) + ' cross-origin isolated · ' + ok(typeof SharedArrayBuffer === 'function') +
+      ' SharedArrayBuffer · ' + ok(gl2) + ' WebGL2 · ' + (navigator.hardwareConcurrency || '?') + ' CPU threads';
+  })();
   var file = null;
   function pick(f) {
     if (!f) return;
@@ -106,6 +116,8 @@
     window.EJS_language = 'en-US'; // keep the loader from fetching a browser-language file
     window.EJS_disableAutoLang = false;
     window.EJS_defaultOptions = { ppsspp_internal_resolution: res };
+    var boot = $('#boot'); boot.style.display = 'block';
+    setTimeout(function () { boot.style.opacity = '0'; }, 90000);
     var s = document.createElement('script');
     s.src = 'psp/emulatorjs/data/loader.js';
     s.onerror = function () { $('#setup').style.display = ''; $('#stage').style.display = 'none'; err.textContent = 'Emulator files missing — run `npm run setup:psp` first.'; };
