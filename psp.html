@@ -73,7 +73,7 @@
     }
   }
   if (location.protocol === 'file:') {
-    err.innerHTML = 'This page cannot run from a file (browsers block it). Start the local server instead: <b>start.sh</b> (Linux / Steam Deck: <code>sh start.sh</code>) or <b>start.bat</b> (Windows), then open <b>http://localhost:8080/psp.html</b>.';
+    err.innerHTML = 'This page cannot run from a file (browsers block it). Start the local server instead: <b>start.sh</b> (Linux / Steam Deck: <code>sh start.sh</code>) or <b>start.bat</b> (Windows), then open the <b>psp.html</b> address the server prints (usually http://localhost:8080/psp.html).';
     document.addEventListener('DOMContentLoaded', function () { $('#go').disabled = true; });
   }
   var file = null;

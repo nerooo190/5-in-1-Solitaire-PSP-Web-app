@@ -14,11 +14,19 @@ class H(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
 
 if __name__ == '__main__':
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
+    start = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    srv = http.server.ThreadingHTTPServer(('127.0.0.1', port), H)
+    srv = None
+    for port in range(start, start + 50):          # port busy? try the next one
+        try:
+            srv = http.server.ThreadingHTTPServer(('127.0.0.1', port), H)
+            break
+        except OSError:
+            print(f'Port {port} is already in use, trying {port + 1} ...')
+    if srv is None:
+        sys.exit('No free port found - close the other server or pass a port: python3 serve.py 9000')
     url = f'http://localhost:{port}/'
-    print(f'5 in 1 Solitaire running at {url}  (original game: {url}psp.html)  — Ctrl+C to stop')
+    print(f'\n5 in 1 Solitaire is running.\n  Remake:          {url}\n  Original (PSP):  {url}psp.html\n\nKeep this window open. Ctrl+C to stop.')
     threading.Timer(0.8, lambda: webbrowser.open(url)).start()
     try: srv.serve_forever()
     except KeyboardInterrupt: pass
