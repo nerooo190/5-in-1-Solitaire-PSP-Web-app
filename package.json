@@ -2,10 +2,13 @@
   "name": "5-in-1-solitaire-web",
   "version": "1.0.0",
   "private": true,
-  "description": "5 in 1 Solitaire web app (Klondike, Spider, FreeCell, Golf, Gaps) — 4K, up to 120 fps",
+  "description": "5 in 1 Solitaire web app (Klondike, Spider, FreeCell, Golf, Gaps) \u2014 4K, up to 120 fps",
   "scripts": {
     "start": "node tests/serve.mjs",
-    "test": "node tests/rules.mjs && node tests/logic.mjs && node tests/smoke.mjs"
+    "test": "node tests/rules.mjs && node tests/logic.mjs && node tests/smoke.mjs",
+    "setup:psp": "node tools/setup-psp.mjs"
   },
-  "devDependencies": { "playwright": "^1.56.0" }
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  }
 }

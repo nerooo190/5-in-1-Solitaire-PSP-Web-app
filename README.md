@@ -15,7 +15,29 @@ Controls: drag cards · double-click / right-click = auto-move · click stock to
 `P`/`Esc` pause · `R` reshuffle (Gaps) · `F` performance overlay. Menus work with mouse, touch or arrow keys + Enter.
 Installable as an offline PWA.
 
-## What was recreated from the game
+## Two versions
+
+| | Page | What it is |
+| --- | --- | --- |
+| Remake | `index.html` | Re-implementation with generated graphics/audio, 4K rendering and up to 120 fps |
+| **Original** | `psp.html` | The **real game** running in a PSP emulator (PPSSPP compiled to WebAssembly) in the browser — 1:1, not a remake |
+
+### Running the original (`psp.html`)
+
+```bash
+npm run setup:psp    # downloads PPSSPP-wasm + EmulatorJS from npm into psp/emulatorjs/ (not committed; GPL)
+npm start            # serves with the COOP/COEP headers the multi-threaded emulator needs
+# open http://localhost:8080/psp.html and choose your own .iso/.cso (read locally, never uploaded)
+```
+
+* Works with the USA (`NPUZ00086`) and Europe (`NPEZ00384`) dumps; the game's assets are identical, only the encrypted `EBOOT.BIN` differs.
+* The game itself is not included in this repo; you supply your own copy.
+* Static hosting (e.g. GitHub Pages) works too: `coi-sw.js` adds the required headers via a service worker.
+* The original renders at the PSP's native 60 fps. The resolution selector (native … 4K) sets PPSSPP's internal render resolution. A real GPU is needed for the higher settings.
+* Default keys: arrows = D-pad, X = ✕, Z = ○, S = □, A = △, Enter = Start, V = Select.
+* Verified headless (software GL): the emulator identifies the game, boots it and accepts keyboard input through the save-data prompt to the profile screen. Not verified: real-GPU speed at 4K, audio by ear, a full game session.
+
+## What was recreated from the game (remake)
 
 The `.cso` was decompressed and its file tree inspected. `EBOOT.BIN` is encrypted (`~PSP`), so the code could
 not be read; the structure was rebuilt from the asset inventory plus standard rules:

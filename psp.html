@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#101552">
+<title>5 in 1 Solitaire — PSP original</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: radial-gradient(120% 90% at 20% 0%, #5b6dff, #262d93 45%, #0d0e33); color: #f4f6ff;
+    font-family: "Segoe UI", system-ui, Arial, sans-serif; overflow: hidden; }
+  #setup { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; }
+  .card { width: min(720px, 100%); background: rgba(12,16,70,.86); border: 2px solid rgba(255,255,255,.22); border-radius: 22px; padding: 28px 32px;
+    box-shadow: 0 20px 60px rgba(0,0,20,.6); }
+  h1 { margin: 0 0 4px; font-size: 34px; } p { margin: 6px 0 16px; color: #b9c1f0; line-height: 1.45; }
+  .drop { border: 3px dashed rgba(255,255,255,.4); border-radius: 18px; padding: 34px 16px; text-align: center; cursor: pointer; transition: .15s; font-weight: 700; font-size: 20px; }
+  .drop.over, .drop:hover, .drop:focus-visible { border-color: #ffd94d; background: rgba(255,255,255,.08); outline: none; }
+  .drop small { display: block; font-weight: 400; color: #b9c1f0; margin-top: 6px; font-size: 14px; }
+  .row { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin: 16px 0 0; flex-wrap: wrap; }
+  select, button { font: inherit; color: inherit; border-radius: 12px; border: 2px solid rgba(255,255,255,.5); padding: 10px 18px; background: rgba(255,255,255,.1); }
+  button.go { background: linear-gradient(180deg, #4a63ff, #2536b8); font-weight: 800; font-size: 20px; cursor: pointer; padding: 12px 34px; }
+  button.go:disabled { opacity: .4; cursor: default; }
+  #err { color: #ff9b9b; margin-top: 12px; min-height: 1.2em; font-size: 14px; }
+  .note { font-size: 13px; color: #98a2d8; margin-top: 14px; }
+  #stage { position: fixed; inset: 0; display: none; background: #000; }
+  #game { width: 100%; height: 100%; }
+  a { color: #ffd94d; }
+</style>
+</head>
+<body>
+<div id="setup">
+  <div class="card">
+    <h1>5 in 1 Solitaire — PSP original</h1>
+    <p>This runs the <b>original game code</b> in a PSP emulator (PPSSPP, WebAssembly) inside your browser — a 1:1 copy, not a remake.
+       Choose <b>your own</b> game file; it is read locally and never uploaded.</p>
+    <div class="drop" id="drop" tabindex="0" role="button">Drop your <b>.iso</b> / <b>.cso</b> here or click to choose
+      <small id="fname">No file selected</small></div>
+    <input type="file" id="file" accept=".iso,.cso,.zip" hidden>
+    <div class="row">
+      <label>Rendering resolution
+        <select id="res">
+          <option value="480x272">PSP native (480×272)</option>
+          <option value="960x544">2× (960×544)</option>
+          <option value="1920x1088" selected>1080p (1920×1088)</option>
+          <option value="2880x1632">3× (2880×1632)</option>
+          <option value="3840x2176">4K (3840×2176)</option>
+        </select></label>
+      <button class="go" id="go" disabled>Start</button>
+    </div>
+    <div id="err"></div>
+    <div class="note">Default keys: arrows = D-pad · X = ✕ · Z = ○ · S = □ · A = △ · Enter = Start · V = Select (rebindable in the emulator menu).
+      The original game runs at the PSP's native 60 fps; the resolution setting only changes how sharp it is drawn.
+      Looking for the remake with 4K / up to 120 fps rendering? <a href="index.html">Open the web remake</a>.</div>
+  </div>
+</div>
+<div id="stage"><div id="game"></div></div>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var err = $('#err');
+  // The emulator is multi-threaded and needs cross-origin isolation (SharedArrayBuffer).
+  if (!window.crossOriginIsolated) {
+    if ('serviceWorker' in navigator && location.protocol !== 'file:' && !sessionStorage.getItem('coi-tried')) {
+      sessionStorage.setItem('coi-tried', '1');
+      navigator.serviceWorker.register('coi-sw.js').then(function (reg) {
+        if (reg.active && !navigator.serviceWorker.controller) location.reload();
+        else navigator.serviceWorker.ready.then(function () { location.reload(); });
+      }).catch(function (e) { err.textContent = 'Could not enable cross-origin isolation: ' + e.message; });
+    } else if (!window.crossOriginIsolated) {
+      err.textContent = 'This page must be served with COOP/COEP headers (use `npm start`) or over HTTPS so the isolation service worker can run.';
+    }
+  }
+  var file = null;
+  function pick(f) {
+    if (!f) return;
+    file = f;
+    $('#fname').textContent = f.name + ' (' + (f.size / 1048576).toFixed(0) + ' MB)';
+    $('#go').disabled = false;
+    err.textContent = '';
+  }
+  var drop = $('#drop'), input = $('#file');
+  drop.addEventListener('click', function () { input.click(); });
+  drop.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') input.click(); });
+  input.addEventListener('change', function () { pick(input.files[0]); });
+  ['dragenter', 'dragover'].forEach(function (n) { drop.addEventListener(n, function (e) { e.preventDefault(); drop.classList.add('over'); }); });
+  ['dragleave', 'drop'].forEach(function (n) { drop.addEventListener(n, function (e) { e.preventDefault(); drop.classList.remove('over'); }); });
+  drop.addEventListener('drop', function (e) { pick(e.dataTransfer.files[0]); });
+
+  window.__startPsp = function (f, res) {
+    $('#setup').style.display = 'none';
+    $('#stage').style.display = 'block';
+    window.EJS_player = '#game';
+    window.EJS_core = 'psp';
+    window.EJS_gameUrl = URL.createObjectURL(f);
+    window.EJS_gameName = f.name.replace(/\.[^.]+$/, '');
+    window.EJS_pathtodata = 'psp/emulatorjs/data/';
+    window.EJS_threads = true;
+    window.EJS_DEBUG_XX = true; // use the unminified sources shipped in the npm package
+    window.EJS_startOnLoaded = true;
+    window.EJS_color = '#2536b8';
+    window.EJS_disableAutoLang = true;
+    window.EJS_defaultOptions = { ppsspp_internal_resolution: res };
+    var s = document.createElement('script');
+    s.src = 'psp/emulatorjs/data/loader.js';
+    s.onerror = function () { $('#setup').style.display = ''; $('#stage').style.display = 'none'; err.textContent = 'Emulator files missing — run `npm run setup:psp` first.'; };
+    document.body.appendChild(s);
+  };
+  $('#go').addEventListener('click', function () { if (file) window.__startPsp(file, $('#res').value); });
+})();
+</script>
+</body>
+</html>
