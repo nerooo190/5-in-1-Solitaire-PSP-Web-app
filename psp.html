@@ -72,13 +72,16 @@
       err.textContent = 'This page must be served with COOP/COEP headers (use `npm start`) or over HTTPS so the isolation service worker can run.';
     }
   }
+  if (location.protocol === 'file:') {
+    err.innerHTML = 'This page cannot run from a file (browsers block it). Start the local server instead: <b>start.sh</b> (Linux / Steam Deck: <code>sh start.sh</code>) or <b>start.bat</b> (Windows), then open <b>http://localhost:8080/psp.html</b>.';
+    document.addEventListener('DOMContentLoaded', function () { $('#go').disabled = true; });
+  }
   var file = null;
   function pick(f) {
     if (!f) return;
     file = f;
     $('#fname').textContent = f.name + ' (' + (f.size / 1048576).toFixed(0) + ' MB)';
-    $('#go').disabled = false;
-    err.textContent = '';
+    if (location.protocol !== 'file:') { $('#go').disabled = false; err.textContent = ''; }
   }
   var drop = $('#drop'), input = $('#file');
   drop.addEventListener('click', function () { input.click(); });
@@ -100,7 +103,8 @@
     window.EJS_DEBUG_XX = true; // use the unminified sources shipped in the npm package
     window.EJS_startOnLoaded = true;
     window.EJS_color = '#2536b8';
-    window.EJS_disableAutoLang = true;
+    window.EJS_language = 'en-US'; // keep the loader from fetching a browser-language file
+    window.EJS_disableAutoLang = false;
     window.EJS_defaultOptions = { ppsspp_internal_resolution: res };
     var s = document.createElement('script');
     s.src = 'psp/emulatorjs/data/loader.js';

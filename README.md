@@ -24,6 +24,9 @@ Installable as an offline PWA.
 
 ### Running the original (`psp.html`)
 
+**Do not double-click `psp.html`** — browsers block the emulator on `file://`. Start the bundled server first:
+`sh start.sh` (Linux / Steam Deck), `start.bat` (Windows) or `python3 serve.py`, then open <http://localhost:8080/psp.html>.
+
 ```bash
 npm run setup:psp    # downloads PPSSPP-wasm + EmulatorJS from npm into psp/emulatorjs/ (not committed; GPL)
 npm start            # serves with the COOP/COEP headers the multi-threaded emulator needs
